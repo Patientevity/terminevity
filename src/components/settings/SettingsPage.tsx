@@ -4,9 +4,10 @@ import { useSettingsStore } from '@/stores/settings-store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { HotkeySettings } from './HotkeySettings';
 
 export function SettingsPage() {
-  const { theme, hotkey, fontSize, fontFamily, setTheme, setFontSize, setFontFamily } = useSettingsStore();
+  const { theme, fontSize, fontFamily, setTheme, setFontSize, setFontFamily } = useSettingsStore();
 
   return (
     <div className="flex flex-col h-full">
@@ -71,13 +72,7 @@ export function SettingsPage() {
               <Keyboard className="w-4 h-4" />
               Hotkeys
             </h3>
-            <div>
-              <label className="text-sm font-medium">Global Toggle</label>
-              <p className="text-xs text-muted-foreground">Current: {hotkey}</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Hotkey customization coming in a future update.
-              </p>
-            </div>
+            <HotkeySettings />
           </section>
 
           {/* AI Providers */}

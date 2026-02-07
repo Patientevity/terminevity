@@ -29,10 +29,11 @@ export function TerminalView() {
 
   // Create first tab on mount
   useEffect(() => {
-    if (tabs.length === 0) {
+    const currentTabs = useTerminalStore.getState().tabs;
+    if (currentTabs.length === 0) {
       createNewTab();
     }
-  }, []);
+  }, [createNewTab]);
 
   return (
     <div className="flex flex-col h-full">

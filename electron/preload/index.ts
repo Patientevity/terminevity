@@ -74,6 +74,11 @@ const api = {
     readFile: (filePath: string) => ipcRenderer.invoke('fs:read-file', filePath),
   },
 
+  // Hotkeys
+  hotkey: {
+    setGlobal: (accelerator: string) => ipcRenderer.invoke('hotkey:set-global', accelerator),
+  },
+
   // App
   app: {
     getPath: (name: string) => ipcRenderer.invoke('app:get-path', name),

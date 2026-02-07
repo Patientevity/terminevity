@@ -6,8 +6,10 @@ import { StatusBar } from './StatusBar';
 import { PanelManager } from './PanelManager';
 import { useAppStore } from '@/stores/app-store';
 import { api } from '@/lib/ipc';
+import { useHotkeys } from '@/hooks/useHotkeys';
 
 export function AppShell() {
+  useHotkeys();
   const { isVisible, setVisible } = useAppStore();
 
   useEffect(() => {

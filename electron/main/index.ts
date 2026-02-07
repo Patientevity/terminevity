@@ -37,8 +37,8 @@ app.whenReady().then(async () => {
   // Register IPC handlers
   registerIpcHandlers(db, terminalManager);
 
-  // Register global shortcuts
-  registerGlobalShortcuts();
+  // Register global shortcuts (pass db so it can read stored hotkey)
+  registerGlobalShortcuts(db);
 
   // Create system tray
   createTray();

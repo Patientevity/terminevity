@@ -147,6 +147,12 @@ export function registerIpcHandlers(
     }
   });
 
+  // ============ Hotkeys ============
+  ipcMain.handle('hotkey:set-global', (_event, accelerator: string) => {
+    const { reregisterGlobalShortcut } = require('./globalShortcut');
+    return reregisterGlobalShortcut(accelerator);
+  });
+
   // ============ App Info ============
   ipcMain.handle('app:get-path', (_event, name: string) => {
     return app.getPath(name as any);

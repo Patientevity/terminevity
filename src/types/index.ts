@@ -1,5 +1,6 @@
 export * from './terminal';
 export * from './database';
+export * from './hotkeys';
 
 export type ViewType = 'terminal' | 'chat' | 'markdown' | 'canvas' | 'explorer' | 'memory' | 'research' | 'settings';
 

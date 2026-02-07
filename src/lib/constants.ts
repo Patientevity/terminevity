@@ -42,4 +42,6 @@ export const IPC_CHANNELS = {
   // App
   APP_GET_PATH: 'app:get-path',
   APP_GET_VERSION: 'app:get-version',
+  // Hotkeys
+  HOTKEY_SET_GLOBAL: 'hotkey:set-global',
 } as const;
