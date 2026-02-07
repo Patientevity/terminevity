@@ -269,9 +269,11 @@ If you find a bug or have a feature request, please open an issue on the GitHub 
 
 ## License
 
-Copyright Patientevity EHR. All rights reserved.
+This project is licensed under the [MIT License](LICENSE).
 
-For licensing inquiries, contact the maintainers.
+Copyright (c) 2025 Patientevity EHR - Raymond Hughes.
+
+You are free to use, modify, and distribute this software. The only requirement is that the original copyright notice and license text are included in any copy or substantial portion of the software.
 
 ---
 

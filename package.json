@@ -2,6 +2,8 @@
   "name": "terminevity",
   "version": "0.1.0",
   "description": "Cross-platform desktop AI terminal with memory, markdown, canvas, and MCP support",
+  "license": "MIT",
+  "author": "Raymond Hughes <Patientevity EHR>",
   "main": "dist-electron/main/index.js",
   "scripts": {
     "dev": "vite",
