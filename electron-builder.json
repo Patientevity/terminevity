@@ -1,0 +1,29 @@
+{
+  "appId": "com.terminevity.app",
+  "productName": "Terminevity",
+  "directories": {
+    "output": "release"
+  },
+  "files": [
+    "dist/**/*",
+    "dist-electron/**/*"
+  ],
+  "mac": {
+    "target": ["dmg", "zip"],
+    "icon": "build/icon.icns",
+    "category": "public.app-category.developer-tools"
+  },
+  "win": {
+    "target": ["nsis"],
+    "icon": "build/icon.ico"
+  },
+  "linux": {
+    "target": ["AppImage", "deb"],
+    "icon": "build/icon.png",
+    "category": "Development"
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true
+  }
+}
