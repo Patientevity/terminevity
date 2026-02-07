@@ -2,6 +2,7 @@ import { ipcMain, app, BrowserWindow, safeStorage } from 'electron';
 import Database from 'better-sqlite3';
 import { TerminalManager } from './terminal-manager';
 import { hideWindow } from './window';
+import { reregisterGlobalShortcut } from './globalShortcut';
 import fs from 'fs';
 import path from 'path';
 
@@ -149,7 +150,6 @@ export function registerIpcHandlers(
 
   // ============ Hotkeys ============
   ipcMain.handle('hotkey:set-global', (_event, accelerator: string) => {
-    const { reregisterGlobalShortcut } = require('./globalShortcut');
     return reregisterGlobalShortcut(accelerator);
   });
 

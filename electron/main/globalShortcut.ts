@@ -21,32 +21,47 @@ export function registerGlobalShortcuts(db?: Database.Database): void {
     }
   }
 
-  globalShortcut.register(currentAccelerator, () => {
-    toggleWindow();
-  });
+  try {
+    globalShortcut.register(currentAccelerator, () => {
+      toggleWindow();
+    });
+    console.log(`[Hotkey] Registered global shortcut: ${currentAccelerator}`);
+    if (!globalShortcut.isRegistered(currentAccelerator)) {
+      console.warn(`[Hotkey] Registration check failed for: ${currentAccelerator}`);
+    }
+  } catch (err) {
+    console.error(`[Hotkey] Failed to register ${currentAccelerator}:`, err);
+  }
 }
 
 export function reregisterGlobalShortcut(accelerator: string): boolean {
+  const previous = currentAccelerator;
+
   try {
-    globalShortcut.unregister(currentAccelerator);
+    globalShortcut.unregisterAll();
   } catch {
-    // Previous shortcut may not have been registered
+    // Best effort cleanup
   }
 
   try {
-    const success = globalShortcut.register(accelerator, () => {
+    globalShortcut.register(accelerator, () => {
       toggleWindow();
     });
-    if (success) {
-      currentAccelerator = accelerator;
+    currentAccelerator = accelerator;
+
+    // Verify the registration actually took effect
+    if (!globalShortcut.isRegistered(accelerator)) {
+      throw new Error(`Failed to register ${accelerator}`);
     }
-    return success;
+
+    return true;
   } catch {
-    // If new shortcut fails, try to re-register the old one
+    // If new shortcut fails, try to restore the previous one
     try {
-      globalShortcut.register(currentAccelerator, () => {
+      globalShortcut.register(previous, () => {
         toggleWindow();
       });
+      currentAccelerator = previous;
     } catch {
       // Nothing we can do
     }

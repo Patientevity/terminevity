@@ -1,5 +1,5 @@
-import React from 'react';
-import { Settings, Keyboard, Brain, MessageSquare, Server } from 'lucide-react';
+import React, { useState } from 'react';
+import { Settings, Keyboard, Brain, MessageSquare, Server, ChevronRight, ArrowLeft } from 'lucide-react';
 import { useSettingsStore } from '@/stores/settings-store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,31 @@ import { HotkeySettings } from './HotkeySettings';
 
 export function SettingsPage() {
   const { theme, fontSize, fontFamily, setTheme, setFontSize, setFontFamily } = useSettingsStore();
+  const [showHotkeys, setShowHotkeys] = useState(false);
+
+  if (showHotkeys) {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="flex items-center h-12 px-4 border-b border-border">
+          <button
+            type="button"
+            onClick={() => setShowHotkeys(false)}
+            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mr-3"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </button>
+          <Keyboard className="w-4 h-4 mr-2" />
+          <span className="text-sm font-medium">Keyboard Shortcuts</span>
+        </div>
+        <ScrollArea className="flex-1">
+          <div className="max-w-2xl mx-auto p-6">
+            <HotkeySettings />
+          </div>
+        </ScrollArea>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full">
@@ -70,9 +95,19 @@ export function SettingsPage() {
           <section>
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Keyboard className="w-4 h-4" />
-              Hotkeys
+              Keyboard Shortcuts
             </h3>
-            <HotkeySettings />
+            <button
+              type="button"
+              onClick={() => setShowHotkeys(true)}
+              className="w-full flex items-center justify-between p-3 rounded-md border border-border hover:bg-muted/50 transition-colors"
+            >
+              <div className="text-left">
+                <p className="text-sm font-medium">Configure Keyboard Shortcuts</p>
+                <p className="text-xs text-muted-foreground">View and customize all keybindings</p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </button>
           </section>
 
           {/* AI Providers */}
