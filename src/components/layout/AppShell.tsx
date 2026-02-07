@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { TopBar } from './TopBar';
 import { Sidebar } from './Sidebar';
 import { StatusBar } from './StatusBar';
@@ -11,16 +11,23 @@ import { useHotkeys } from '@/hooks/useHotkeys';
 export function AppShell() {
   useHotkeys();
   const { isVisible, setVisible } = useAppStore();
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const unsubShow = api.window.onAnimateShow(() => {
+      // Cancel any pending hide so it can't race with this show
+      if (hideTimerRef.current) {
+        clearTimeout(hideTimerRef.current);
+        hideTimerRef.current = null;
+      }
       setVisible(true);
     });
 
     const unsubHide = api.window.onAnimateHide(() => {
       setVisible(false);
       // After animation completes, tell main process to hide window
-      setTimeout(() => {
+      hideTimerRef.current = setTimeout(() => {
+        hideTimerRef.current = null;
         api.window.hideComplete();
       }, 300);
     });
@@ -28,27 +35,24 @@ export function AppShell() {
     return () => {
       unsubShow();
       unsubHide();
+      if (hideTimerRef.current) {
+        clearTimeout(hideTimerRef.current);
+      }
     };
   }, [setVisible]);
 
   return (
-    <AnimatePresence>
-      {isVisible && (
-        <motion.div
-          className="flex flex-col h-screen w-screen bg-background"
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -20, opacity: 0 }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
-        >
-          <TopBar />
-          <div className="flex flex-1 overflow-hidden">
-            <Sidebar />
-            <PanelManager />
-          </div>
-          <StatusBar />
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <motion.div
+      className="flex flex-col h-screen w-screen bg-background"
+      animate={isVisible ? { y: 0, opacity: 1 } : { y: -20, opacity: 0 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+    >
+      <TopBar />
+      <div className="flex flex-1 overflow-hidden">
+        <Sidebar />
+        <PanelManager />
+      </div>
+      <StatusBar />
+    </motion.div>
   );
 }
