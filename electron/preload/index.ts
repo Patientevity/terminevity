@@ -66,6 +66,59 @@ const api = {
       isDefault: boolean;
     }) => ipcRenderer.invoke('ai:save-provider', provider),
     listProviders: () => ipcRenderer.invoke('ai:list-providers'),
+    listAvailableProviders: () => ipcRenderer.invoke('ai:list-available-providers'),
+    updateProvider: (id: number, updates: { apiKey?: string; model?: string; isDefault?: boolean; enabled?: boolean }) =>
+      ipcRenderer.invoke('ai:update-provider', id, updates),
+    deleteProvider: (id: number) => ipcRenderer.invoke('ai:delete-provider', id),
+    decryptKey: (id: number) => ipcRenderer.invoke('ai:decrypt-key', id),
+    chat: (conversationId: number, messages: { role: string; content: string }[], providerType: string, apiKey: string, model: string) =>
+      ipcRenderer.invoke('ai:chat', conversationId, messages, providerType, apiKey, model),
+    chatStream: (conversationId: number, messages: { role: string; content: string }[], providerType: string, apiKey: string, model: string) => {
+      ipcRenderer.send('ai:chat-stream', conversationId, messages, providerType, apiKey, model);
+    },
+    onStreamEvent: (callback: (event: { type: string; content: string; conversationId: number }) => void) => {
+      const handler = (_event: any, data: { type: string; content: string; conversationId: number }) => callback(data);
+      ipcRenderer.on('ai:stream-event', handler);
+      return () => ipcRenderer.removeListener('ai:stream-event', handler);
+    },
+  },
+
+  // Memory
+  memory: {
+    getSessions: (limit?: number) => ipcRenderer.invoke('memory:get-sessions', limit),
+    createSession: (title: string) => ipcRenderer.invoke('memory:create-session', title),
+    endSession: (id: number, summary?: string) => ipcRenderer.invoke('memory:end-session', id, summary),
+    getObservations: (sessionId: number) => ipcRenderer.invoke('memory:get-observations', sessionId),
+    saveObservation: (sessionId: number, type: string, content: string, tags: string[]) =>
+      ipcRenderer.invoke('memory:save-observation', sessionId, type, content, tags),
+    search: (query: string, limit?: number) => ipcRenderer.invoke('memory:search', query, limit),
+  },
+
+  // Documents
+  doc: {
+    list: () => ipcRenderer.invoke('doc:list'),
+    get: (id: number) => ipcRenderer.invoke('doc:get', id),
+    create: (title: string, content: string) => ipcRenderer.invoke('doc:create', title, content),
+    update: (id: number, title: string, content: string) => ipcRenderer.invoke('doc:update', id, title, content),
+    delete: (id: number) => ipcRenderer.invoke('doc:delete', id),
+  },
+
+  // Canvases
+  canvas: {
+    list: () => ipcRenderer.invoke('canvas:list'),
+    get: (id: number) => ipcRenderer.invoke('canvas:get', id),
+    create: (title: string, data: string) => ipcRenderer.invoke('canvas:create', title, data),
+    update: (id: number, title: string, data: string) => ipcRenderer.invoke('canvas:update', id, title, data),
+    delete: (id: number) => ipcRenderer.invoke('canvas:delete', id),
+  },
+
+  // Conversations
+  chat: {
+    listConversations: () => ipcRenderer.invoke('chat:list-conversations'),
+    createConversation: (title: string, providerId?: number) => ipcRenderer.invoke('chat:create-conversation', title, providerId),
+    deleteConversation: (id: number) => ipcRenderer.invoke('chat:delete-conversation', id),
+    getMessages: (conversationId: number) => ipcRenderer.invoke('chat:get-messages', conversationId),
+    saveMessage: (conversationId: number, role: string, content: string) => ipcRenderer.invoke('chat:save-message', conversationId, role, content),
   },
 
   // File system
@@ -81,6 +134,7 @@ const api = {
 
   // App
   app: {
+    openExternal: (url: string) => ipcRenderer.invoke('app:open-external', url),
     getPath: (name: string) => ipcRenderer.invoke('app:get-path', name),
     getVersion: () => ipcRenderer.invoke('app:get-version'),
   },

@@ -4,14 +4,39 @@ import { FitAddon } from '@xterm/addon-fit';
 import { WebLinksAddon } from '@xterm/addon-web-links';
 import { SearchAddon } from '@xterm/addon-search';
 import { api } from '@/lib/ipc';
+import { useThemeStore, type TerminalTheme } from '@/stores/theme-store';
 
 interface UseTerminalOptions {
   id: string;
-  fontSize?: number;
-  fontFamily?: string;
 }
 
-export function useTerminal({ id, fontSize = 14, fontFamily = 'monospace' }: UseTerminalOptions) {
+function themeToXterm(t: TerminalTheme) {
+  return {
+    background: t.background,
+    foreground: t.foreground,
+    cursor: t.cursor,
+    cursorAccent: t.cursorAccent,
+    selectionBackground: t.selectionBackground,
+    black: t.black,
+    red: t.red,
+    green: t.green,
+    yellow: t.yellow,
+    blue: t.blue,
+    magenta: t.magenta,
+    cyan: t.cyan,
+    white: t.white,
+    brightBlack: t.brightBlack,
+    brightRed: t.brightRed,
+    brightGreen: t.brightGreen,
+    brightYellow: t.brightYellow,
+    brightBlue: t.brightBlue,
+    brightMagenta: t.brightMagenta,
+    brightCyan: t.brightCyan,
+    brightWhite: t.brightWhite,
+  };
+}
+
+export function useTerminal({ id }: UseTerminalOptions) {
   const terminalRef = useRef<Terminal | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -22,32 +47,12 @@ export function useTerminal({ id, fontSize = 14, fontFamily = 'monospace' }: Use
     isInitialized.current = true;
     containerRef.current = container;
 
+    const { terminalTheme } = useThemeStore.getState();
+
     const terminal = new Terminal({
-      fontSize,
-      fontFamily,
-      theme: {
-        background: '#09090b',
-        foreground: '#fafafa',
-        cursor: '#fafafa',
-        cursorAccent: '#09090b',
-        selectionBackground: '#27272a',
-        black: '#09090b',
-        red: '#ef4444',
-        green: '#22c55e',
-        yellow: '#eab308',
-        blue: '#3b82f6',
-        magenta: '#a855f7',
-        cyan: '#06b6d4',
-        white: '#fafafa',
-        brightBlack: '#71717a',
-        brightRed: '#f87171',
-        brightGreen: '#4ade80',
-        brightYellow: '#facc15',
-        brightBlue: '#60a5fa',
-        brightMagenta: '#c084fc',
-        brightCyan: '#22d3ee',
-        brightWhite: '#ffffff',
-      },
+      fontSize: terminalTheme.terminalFontSize,
+      fontFamily: terminalTheme.terminalFontFamily,
+      theme: themeToXterm(terminalTheme),
       cursorBlink: true,
       allowProposedApi: true,
     });
@@ -82,7 +87,27 @@ export function useTerminal({ id, fontSize = 14, fontFamily = 'monospace' }: Use
     // Initial resize
     const { cols, rows } = terminal;
     api.terminal.resize(id, cols, rows);
-  }, [id, fontSize, fontFamily]);
+  }, [id]);
+
+  // Subscribe to theme store for live updates
+  useEffect(() => {
+    const unsubscribe = useThemeStore.subscribe((state, prevState) => {
+      const terminal = terminalRef.current;
+      if (!terminal) return;
+
+      const theme = state.terminalTheme;
+      const prev = prevState.terminalTheme;
+
+      if (theme !== prev) {
+        terminal.options.theme = themeToXterm(theme);
+        terminal.options.fontSize = theme.terminalFontSize;
+        terminal.options.fontFamily = theme.terminalFontFamily;
+        fitAddonRef.current?.fit();
+      }
+    });
+
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
     // Listen for data from pty

@@ -4,12 +4,14 @@ import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow';
 import { useAppStore } from '@/stores/app-store';
 import { useSettingsStore } from '@/stores/settings-store';
 import { useHotkeyStore } from '@/stores/hotkey-store';
+import { useThemeStore } from '@/stores/theme-store';
 import { api } from '@/lib/ipc';
 
 export default function App() {
   const { isOnboarded, isOnboardingChecked, setOnboarded, setOnboardingChecked } = useAppStore();
   const { loadFromDb } = useSettingsStore();
   const { loadFromDb: loadHotkeys } = useHotkeyStore();
+  const { loadFromDb: loadTerminalTheme } = useThemeStore();
 
   useEffect(() => {
     async function init() {
@@ -22,13 +24,14 @@ export default function App() {
         // Load settings from database
         await loadFromDb();
         await loadHotkeys();
+        await loadTerminalTheme();
       } catch (err) {
         console.error('Init error:', err);
         setOnboardingChecked(true);
       }
     }
     init();
-  }, [setOnboarded, setOnboardingChecked, loadFromDb, loadHotkeys]);
+  }, [setOnboarded, setOnboardingChecked, loadFromDb, loadHotkeys, loadTerminalTheme]);
 
   // Show loading state while checking
   if (!isOnboardingChecked) {

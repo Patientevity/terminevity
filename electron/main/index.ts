@@ -6,6 +6,7 @@ import { createTray } from './tray';
 import { registerIpcHandlers } from './ipc-handlers';
 import { initDatabase } from './database';
 import { TerminalManager } from './terminal-manager';
+import { MCPManager } from './mcp/mcp-manager';
 
 // Prevent multiple instances
 const gotTheLock = app.requestSingleInstanceLock();
@@ -23,6 +24,7 @@ if (!gotTheLock) {
 
 // Initialize globals
 let terminalManager: TerminalManager;
+let mcpManager: MCPManager;
 
 app.whenReady().then(async () => {
   // Init database
@@ -30,6 +32,10 @@ app.whenReady().then(async () => {
 
   // Create terminal manager
   terminalManager = new TerminalManager();
+
+  // Initialize MCP server
+  mcpManager = new MCPManager(db);
+  mcpManager.start().catch((err) => console.error('MCP start failed:', err));
 
   // Create main window
   const win = createWindow();
@@ -59,5 +65,8 @@ app.on('window-all-closed', () => {
 app.on('will-quit', () => {
   if (terminalManager) {
     terminalManager.disposeAll();
+  }
+  if (mcpManager) {
+    mcpManager.stop().catch(() => {});
   }
 });

@@ -1,66 +1,34 @@
 import { create } from 'zustand';
-import type { AIMessage } from '@/types';
-
-interface ChatInstance {
-  id: string;
-  title: string;
-  providerId: number | null;
-  messages: AIMessage[];
-  isStreaming: boolean;
-}
+import type { AIMessage, Conversation, Message } from '@/types';
 
 interface ChatStore {
-  instances: ChatInstance[];
-  activeInstanceId: string | null;
-  addInstance: (instance: ChatInstance) => void;
-  removeInstance: (id: string) => void;
-  setActiveInstance: (id: string) => void;
-  addMessage: (instanceId: string, message: AIMessage) => void;
-  setStreaming: (instanceId: string, streaming: boolean) => void;
-  updateLastMessage: (instanceId: string, content: string) => void;
+  conversations: Conversation[];
+  activeConversationId: number | null;
+  messages: Message[];
+  isStreaming: boolean;
+  streamingContent: string;
+
+  setConversations: (conversations: Conversation[]) => void;
+  setActiveConversationId: (id: number | null) => void;
+  setMessages: (messages: Message[]) => void;
+  addMessage: (message: Message) => void;
+  setStreaming: (streaming: boolean) => void;
+  setStreamingContent: (content: string) => void;
+  appendStreamingContent: (chunk: string) => void;
 }
 
 export const useChatStore = create<ChatStore>((set) => ({
-  instances: [],
-  activeInstanceId: null,
-  addInstance: (instance) =>
-    set((state) => ({
-      instances: [...state.instances, instance],
-      activeInstanceId: instance.id,
-    })),
-  removeInstance: (id) =>
-    set((state) => {
-      const newInstances = state.instances.filter((i) => i.id !== id);
-      return {
-        instances: newInstances,
-        activeInstanceId:
-          state.activeInstanceId === id
-            ? newInstances[newInstances.length - 1]?.id ?? null
-            : state.activeInstanceId,
-      };
-    }),
-  setActiveInstance: (id) => set({ activeInstanceId: id }),
-  addMessage: (instanceId, message) =>
-    set((state) => ({
-      instances: state.instances.map((i) =>
-        i.id === instanceId ? { ...i, messages: [...i.messages, message] } : i,
-      ),
-    })),
-  setStreaming: (instanceId, streaming) =>
-    set((state) => ({
-      instances: state.instances.map((i) =>
-        i.id === instanceId ? { ...i, isStreaming: streaming } : i,
-      ),
-    })),
-  updateLastMessage: (instanceId, content) =>
-    set((state) => ({
-      instances: state.instances.map((i) => {
-        if (i.id !== instanceId) return i;
-        const messages = [...i.messages];
-        if (messages.length > 0) {
-          messages[messages.length - 1] = { ...messages[messages.length - 1], content };
-        }
-        return { ...i, messages };
-      }),
-    })),
+  conversations: [],
+  activeConversationId: null,
+  messages: [],
+  isStreaming: false,
+  streamingContent: '',
+
+  setConversations: (conversations) => set({ conversations }),
+  setActiveConversationId: (id) => set({ activeConversationId: id }),
+  setMessages: (messages) => set({ messages }),
+  addMessage: (message) => set((state) => ({ messages: [...state.messages, message] })),
+  setStreaming: (streaming) => set({ isStreaming: streaming }),
+  setStreamingContent: (content) => set({ streamingContent: content }),
+  appendStreamingContent: (chunk) => set((state) => ({ streamingContent: state.streamingContent + chunk })),
 }));
